@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Astro Arun Pandit</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f8ff;
+  --surface: #e6f3fb;
+  --card: #ffffff;
+  --border: rgba(56,152,210,0.18);
+  --border-hover: rgba(56,152,210,0.45);
+  --gold: #2a8fc9;
+  --gold-soft: rgba(56,152,210,0.1);
+  --gold-glow: rgba(56,152,210,0.2);
+  --text: #0d2d45;
+  --muted: #5a8aaa;
+  --dim: #94b8cc;
+  --sage: #2e9e6e;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #cce8f7;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Phone shell ─────────────────────────────────────────────────── */
+.phone-shell {
+  width: min(390px, 100vw);
+  height: min(844px, 100vh);
+  position: relative;
+  overflow: hidden;
+  border-radius: min(44px, 0px);
+  box-shadow: 0 32px 80px rgba(0,60,120,0.18), 0 0 0 1px rgba(56,152,210,0.15);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 430px) {
+  body { display: block; }
+  .phone-shell {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* Ambient background */
+.phone-shell::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(56,152,210,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(30,120,200,0.06) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+/* Subtle cloud-like stars */
+.stars { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.star {
+  position: absolute; border-radius: 50%; background: rgba(56,152,210,0.5);
+  animation: twinkle var(--d,3s) ease-in-out infinite;
+  animation-delay: var(--delay,0s);
+}
+@keyframes twinkle {
+  0%,100% { opacity: var(--lo,0.08); }
+  50%      { opacity: var(--hi,0.35); }
+}
+
+/* ── Status bar ─────────────────────────────────────────────────── */
+.status-bar {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 22px 0;
+  font-size: 12px; font-weight: 500; color: var(--text);
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.status-time { font-weight: 500; }
+.status-icons { display: flex; gap: 5px; align-items: center; }
+.sig-bar { display: flex; gap: 2px; align-items: flex-end; height: 11px; }
+.sig-bar span { width: 3px; background: var(--text); border-radius: 1px; }
+.sig-bar span:nth-child(1) { height: 3px; }
+.sig-bar span:nth-child(2) { height: 5px; }
+.sig-bar span:nth-child(3) { height: 8px; }
+.sig-bar span:nth-child(4) { height: 11px; }
+.battery {
+  width: 22px; height: 11px; border: 1.5px solid var(--text); border-radius: 2.5px;
+  position: relative;
+}
+.battery::after {
+  content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
+  width: 2.5px; height: 5px; background: var(--text); border-radius: 0 1px 1px 0;
+}
+.battery-fill {
+  position: absolute; left: 1.5px; top: 1.5px; bottom: 1.5px;
+  width: 70%; background: var(--text); border-radius: 1px;
+}
+
+/* ── Scrollable content ─────────────────────────────────────────── */
+.screen {
+  position: relative; z-index: 1;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 0 calc(80px + var(--safe-bottom)) 0;
+}
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.header {
+  text-align: center;
+  padding: 24px 24px 20px;
+}
+.logo-ring {
+  width: 58px; height: 58px; border-radius: 50%;
+  border: 1px solid var(--gold);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 0 24px var(--gold-glow), inset 0 0 16px var(--gold-soft);
+  animation: glow 3s ease-in-out infinite;
+  background: white;
+}
+.logo-ring svg { width: 28px; height: 28px; }
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 20px var(--gold-glow); }
+  50%      { box-shadow: 0 0 38px rgba(56,152,210,0.38); }
+}
+.eyebrow {
+  font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px; opacity: 0.85;
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px; font-weight: 600; line-height: 1.15;
+  color: var(--text);
+}
+.header-rule {
+  display: flex; align-items: center; gap: 8px;
+  max-width: 180px; margin: 12px auto 10px;
+}
+.header-rule::before, .header-rule::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.header-rule::after { background: linear-gradient(90deg, var(--gold), transparent); }
+.rule-mark { font-size: 7px; color: var(--gold); opacity: 0.7; }
+.header-sub {
+  font-size: 13px; line-height: 1.7; color: var(--muted);
+  font-weight: 300; padding: 0 12px;
+}
+
+/* ── Flow strip ─────────────────────────────────────────────────── */
+.flow-wrap {
+  padding: 0 20px 20px;
+  position: relative; z-index: 2;
+}
+.flow-strip {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 14px;
+  gap: 0;
+}
+.flow-node { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.flow-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9.5px; color: var(--dim);
+  background: white;
+  transition: all 0.3s; font-weight: 500;
+}
+.flow-dot.active { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); box-shadow: 0 0 8px var(--gold-glow); }
+.flow-dot.done   { border-color: var(--sage); color: var(--sage); background: rgba(46,158,110,0.1); }
+.flow-lbl { font-size: 8.5px; color: var(--dim); letter-spacing: 0.3px; transition: color 0.3s; }
+.flow-lbl.active { color: var(--gold); }
+.flow-lbl.done   { color: var(--sage); }
+.flow-line { flex: 1; height: 1px; background: var(--dim); margin-bottom: 14px; transition: background 0.3s; max-width: 24px; }
+.flow-line.done  { background: var(--sage); }
+
+/* ── Card ───────────────────────────────────────────────────────── */
+.card {
+  margin: 0 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 4px 32px rgba(56,152,210,0.1);
+  animation: slideUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-eyebrow {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px; opacity: 0.75;
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px; font-weight: 600; line-height: 1.2;
+  color: var(--text); margin-bottom: 5px;
+}
+.card-sub {
+  font-size: 12.5px; color: var(--muted); font-weight: 300;
+  line-height: 1.65; margin-bottom: 22px;
+}
+
+/* ── Affirmation banner (step 4) ────────────────────────────────── */
+.affirm-banner {
+  background: linear-gradient(135deg, rgba(56,152,210,0.1) 0%, rgba(30,120,200,0.06) 100%);
+  border: 1px solid rgba(56,152,210,0.2);
+  border-radius: 14px;
+  padding: 16px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.affirm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.55;
+  font-weight: 300;
+}
+.affirm-dot {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(56,152,210,0.15);
+  border: 1px solid rgba(56,152,210,0.3);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.affirm-dot svg { width: 9px; height: 9px; stroke: var(--gold); stroke-width: 2; fill: none; }
+
+/* ── Category grid ──────────────────────────────────────────────── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 6px;
+}
+.cat-tile {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 13px 12px 11px;
+  background: rgba(255,255,255,0.6);
+  transition: all 0.18s;
+  user-select: none; position: relative;
+  -webkit-user-select: none;
+}
+.cat-tile:active { transform: scale(0.97); }
+.cat-tile.sel {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+.cat-tile.sel::after {
+  content: '✓'; position: absolute; top: 7px; right: 10px;
+  font-size: 9px; color: var(--gold); font-weight: 700;
+}
+.tile-icon {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: rgba(56,152,210,0.1);
+  border: 1px solid rgba(56,152,210,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+}
+.tile-icon svg { width: 13px; height: 13px; fill: none; stroke: var(--gold); stroke-width: 1.5; }
+.tile-name { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.3; margin-bottom: 2px; }
+.tile-hint { font-size: 10px; color: var(--muted); line-height: 1.4; font-weight: 300; }
+
+/* ── Chips ──────────────────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+  cursor: pointer;
+  padding: 6px 12px; border-radius: 30px;
+  border: 1px solid var(--border);
+  font-size: 12px; color: var(--muted);
+  background: white;
+  transition: all 0.16s; user-select: none;
+  -webkit-user-select: none;
+}
+.chip:active { transform: scale(0.96); }
+.chip.sel { border-color: var(--gold); background: var(--gold-soft); color: var(--text); font-weight: 500; }
+
+/* ── Urgency ────────────────────────────────────────────────────── */
+.urg-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 5px; }
+.urg-btn {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 3px;
+  text-align: center; font-size: 10.5px; color: var(--muted);
+  background: white; transition: all 0.16s;
+  user-select: none; -webkit-user-select: none;
+  line-height: 1.3;
+}
+.urg-btn:active { transform: scale(0.95); }
+.urg-val { font-size: 13px; font-weight: 600; color: var(--dim); display: block; margin-bottom: 3px; }
+.urg-btn.sel { border-color: var(--gold); background: var(--gold-soft); color: var(--text); }
+.urg-btn.sel .urg-val { color: var(--gold); }
+
+/* ── Fields ─────────────────────────────────────────────────────── */
+.field { margin-bottom: 14px; }
+.field-label {
+  display: block; font-size: 11.5px; font-weight: 500;
+  color: var(--muted); margin-bottom: 6px; letter-spacing: 0.2px;
+}
+.req { color: var(--gold); }
+input, select, textarea {
+  width: 100%; padding: 11px 13px;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 300;
+  color: var(--text); background: rgba(240,248,255,0.8);
+  border: 1px solid var(--border); border-radius: 10px; outline: none;
+  transition: border-color 0.2s; caret-color: var(--gold);
+  -webkit-appearance: none; appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2.5px var(--gold-soft);
+  background: white;
+}
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a8aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; background-color: rgba(240,248,255,0.8); }
+select option { background: #ffffff; color: #0d2d45; }
+textarea { resize: none; height: 100px; line-height: 1.6; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── Notice ─────────────────────────────────────────────────────── */
+.notice {
+  border-radius: 10px; padding: 11px 13px;
+  font-size: 11.5px; line-height: 1.6;
+  display: flex; gap: 9px; align-items: flex-start;
+  margin-top: 16px;
+}
+.notice.green { background: rgba(46,158,110,0.07); border: 1px solid rgba(46,158,110,0.22); color: #2e7a55; }
+.notice.amber { background: var(--gold-soft); border: 1px solid rgba(56,152,210,0.22); color: #2a6fa0; }
+.notice-mark { flex-shrink: 0; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; margin-top: 1px; }
+.notice.green .notice-mark { background: rgba(46,158,110,0.2); color: #2e9e6e; }
+.notice.amber .notice-mark { background: rgba(56,152,210,0.15); color: #2a8fc9; }
+
+/* ── Trust pills ────────────────────────────────────────────────── */
+.trust-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.tpill {
+  font-size: 10.5px; color: var(--muted);
+  background: rgba(56,152,210,0.07); border: 1px solid var(--border);
+  border-radius: 30px; padding: 4px 10px;
+}
+
+/* ── Summary ────────────────────────────────────────────────────── */
+.summ-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 11px 0; border-bottom: 1px solid rgba(56,152,210,0.08); gap: 10px;
+}
+.summ-row:last-child { border-bottom: none; }
+.sk { font-size: 11px; color: var(--dim); min-width: 80px; padding-top: 1px; }
+.sv { font-size: 12.5px; color: var(--text); text-align: right; font-weight: 300; line-height: 1.5; }
+
+/* ── Confirm ────────────────────────────────────────────────────── */
+.confirm-center { text-align: center; }
+.confirm-mark {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: var(--gold-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  box-shadow: 0 0 32px var(--gold-glow);
+  animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.confirm-mark svg { width: 26px; height: 26px; stroke: var(--gold); stroke-width: 1.5; fill: none; }
+@keyframes popIn { from { transform:scale(0.4); opacity:0; } to { transform:scale(1); opacity:1; } }
+.confirm-title { font-family:'Playfair Display',serif; font-size:24px; margin-bottom: 7px; color: var(--text); }
+.confirm-sub { font-size:13px; color:var(--muted); font-weight:300; line-height:1.7; margin-bottom:22px; }
+
+.ast-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; border-radius: 12px;
+  background: var(--gold-soft); border: 1px solid rgba(56,152,210,0.2);
+  margin-bottom: 20px; text-align: left;
+}
+.ast-av {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #2a8fc9, #1a5f9a);
+  display: flex; align-items: center; justify-content: center;
+}
+.ast-av svg { width: 18px; height: 18px; stroke: rgba(200,235,255,0.9); stroke-width: 1.4; fill: none; }
+.ast-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; color: var(--text); }
+.ast-meta { font-size: 10.5px; color: var(--muted); }
+.ast-badge {
+  margin-left: auto; background: rgba(46,158,110,0.1);
+  border: 1px solid rgba(46,158,110,0.3);
+  border-radius: 20px; padding: 3px 9px;
+  font-size: 10px; color: var(--sage); white-space: nowrap;
+}
+.prep-list { list-style:none; display:flex; flex-direction:column; gap:8px; text-align:left; }
+.prep-list li {
+  display:flex; gap:9px; align-items:flex-start;
+  font-size:12.5px; color:var(--muted); line-height:1.55; font-weight:300;
+}
+.prep-list li::before { content:'—'; color:var(--gold); flex-shrink:0; margin-top:0; opacity:0.6; }
+
+/* ── Fixed CTA bar ──────────────────────────────────────────────── */
+.cta-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+}
+.btn-row { display: flex; gap: 8px; }
+.btn-back {
+  padding: 13px 18px; border-radius: 12px;
+  border: 1px solid var(--border); background: white;
+  font-family: 'Outfit', sans-serif; font-size: 13.5px;
+  color: var(--muted); cursor: pointer; transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn-back:active { border-color: var(--gold); color: var(--text); }
+.btn-cta {
+  flex: 1; padding: 14px 20px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, #2a8fc9, #1a5f9a);
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+  color: #fff; cursor: pointer; transition: all 0.18s;
+  letter-spacing: 0.2px;
+  box-shadow: 0 4px 20px rgba(42,143,201,0.3);
+}
+.btn-cta:active { transform: scale(0.98); }
+.btn-cta:disabled { opacity: 0.4; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)} 80%{transform:translateX(-2px)} }
+.shake { animation: shake 0.3s ease; }
+
+.section-gap { margin-top: 20px; }
+.field-hint { font-size: 10px; color: var(--dim); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="phone-shell">
+
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clock">9:41</span>
+    <div class="status-icons">
+      <div class="sig-bar"><span></span><span></span><span></span><span></span></div>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Scrollable screen -->
+  <div class="screen" id="screen">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-ring">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="10" stroke="rgba(56,152,210,0.5)" stroke-width="1"/>
+          <circle cx="14" cy="14" r="5" stroke="rgba(56,152,210,0.85)" stroke-width="1.2"/>
+          <line x1="14" y1="4" x2="14" y2="24" stroke="rgba(56,152,210,0.35)" stroke-width="0.8"/>
+          <line x1="4" y1="14" x2="24" y2="14" stroke="rgba(56,152,210,0.35)" stroke-width="0.8"/>
+          <line x1="7" y1="7" x2="21" y2="21" stroke="rgba(56,152,210,0.2)" stroke-width="0.8"/>
+          <line x1="21" y1="7" x2="7" y2="21" stroke="rgba(56,152,210,0.2)" stroke-width="0.8"/>
+          <circle cx="14" cy="14" r="1.5" fill="rgba(56,152,210,0.9)"/>
+        </svg>
+      </div>
+      <div class="eyebrow">Vedic Astrology Consultation</div>
+      <div class="brand-name">Astro Arun Pandit</div>
+      <div class="header-rule"><span class="rule-mark">◆</span></div>
+      <div class="header-sub">Share your concerns first, at your own pace. Your details come later.</div>
+    </div>
+
+    <!-- Flow -->
+    <div class="flow-wrap">
+      <div class="flow-strip" id="flow-strip"></div>
+    </div>
+
+    <!-- Step content -->
+    <div id="step-content"></div>
+
+  </div>
+
+  <!-- Fixed CTA bar -->
+  <div class="cta-bar" id="cta-bar"></div>
+
+</div>
+
+<script>
+// ── Clock ──────────────────────────────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+tick(); setInterval(tick,30000);
+
+// ── Stars (soft blue dots) ─────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<55;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*1.5+0.4;
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;
+      width:${sz}px;height:${sz}px;
+      --d:${2.5+Math.random()*4}s;--delay:${Math.random()*5}s;
+      --lo:${0.04+Math.random()*0.08};--hi:${0.2+Math.random()*0.25};`;
+    c.appendChild(s);
+  }
+})();
+
+// ── Data ───────────────────────────────────────────────────────────────────────
+const CATS = [
+  { id:'love',      name:'Love & Relationships', hint:'Compatibility, heartbreak, finding a partner',
+    svg:'<path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" stroke-width="1.2"/>' },
+  { id:'marriage',  name:'Marriage',             hint:'Timing, kundli match, delays, dosha',
+    svg:'<circle cx="8" cy="8" r="4" stroke-width="1.2"/><circle cx="20" cy="8" r="4" stroke-width="1.2"/><path d="M4 20c0-3.314 2.686-6 6-6h8c3.314 0 6 2.686 6 6" stroke-width="1.2"/>' },
+  { id:'career',    name:'Career & Work',        hint:'Job change, business, growth, stagnation',
+    svg:'<rect x="2" y="7" width="20" height="14" rx="2" stroke-width="1.2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke-width="1.2"/><line x1="12" y1="12" x2="12" y2="16" stroke-width="1.2"/><line x1="10" y1="14" x2="14" y2="14" stroke-width="1.2"/>' },
+  { id:'finance',   name:'Finance & Wealth',     hint:'Debt, investments, losses, money flow',
+    svg:'<line x1="12" y1="2" x2="12" y2="22" stroke-width="1.2"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke-width="1.2"/>' },
+  { id:'family',    name:'Family & Home',        hint:'Parents, in-laws, siblings, disputes',
+    svg:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-width="1.2"/><polyline points="9 22 9 12 15 12 15 22" stroke-width="1.2"/>' },
+  { id:'health',    name:'Health & Wellbeing',   hint:'Chronic illness, mental health, recovery',
+    svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="1.2"/>' },
+  { id:'education', name:'Education',            hint:'Exams, abroad studies, stream selection',
+    svg:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-width="1.2"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke-width="1.2"/>' },
+  { id:'spiritual', name:'Spiritual & Karma',    hint:'Life purpose, past life, dharma, remedies',
+    svg:'<circle cx="12" cy="12" r="10" stroke-width="1.2"/><line x1="2" y1="12" x2="22" y2="12" stroke-width="1.2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="1.2"/>' },
+  { id:'property',  name:'Property & Vastu',     hint:'Buying, selling, home harmony, disputes',
+    svg:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-width="1.2"/><rect x="9" y="13" width="6" height="8" stroke-width="1.2"/>' },
+  { id:'children',  name:'Children',             hint:'Childbirth timing, child health, education',
+    svg:'<circle cx="12" cy="8" r="4" stroke-width="1.2"/><path d="M8 21v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke-width="1.2"/>' },
+  { id:'legal',     name:'Legal & Disputes',     hint:'Court cases, settlements, property conflicts',
+    svg:'<path d="M12 22V12"/><path d="M20 12H4"/><path d="m17 7-5-5-5 5"/><path d="m15 17 3 3 3-3"/><path d="m3 17 3 3 3-3"/>' },
+  { id:'foreign',   name:'Foreign & Travel',     hint:'Visa, settlement abroad, relocation',
+    svg:'<circle cx="12" cy="12" r="10" stroke-width="1.2"/><line x1="2" y1="12" x2="22" y2="12" stroke-width="1.2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke-width="1.2"/>' },
+];
+
+const SUBS = {
+  love:      ['Finding a partner','Breakup / separation','Compatibility','Long-distance relationship','Trust issues','Family disapproval'],
+  marriage:  ['Marriage timing','Kundli matching','Love marriage hurdles','Arranged marriage search','Manglik / dosha','Repeated delays'],
+  career:    ['Stuck in career','Job change','Business growth','Promotions stagnating','Starting a venture','Workplace conflict'],
+  finance:   ['Debt & losses','Investment timing','Wealth accumulation','Business finances','Property purchase','Sudden financial loss'],
+  family:    ['Conflict at home','Parent-child tension','In-law issues','Sibling disputes','Property disagreements','Family harmony'],
+  health:    ['Chronic illness','Mental wellbeing','Surgery timing','Recovery guidance','Ancestral health karma'],
+  education: ['Exam performance','Higher studies abroad','Course selection','Focus & concentration','Competitive exams'],
+  spiritual: ['Life purpose','Karma & past life','Recurring patterns','Mantra & remedy guidance','Spiritual path'],
+  property:  ['Buying / selling timing','Vastu correction','Inheritance','Rental issues'],
+  children:  ['Childbirth timing','Child health','Child education'],
+  legal:     ['Court case outcome','Land disputes','Settlement'],
+  foreign:   ['Visa / immigration','Settlement abroad','Foreign job','Relocation timing'],
+};
+
+const URGENCY = [
+  {v:1, label:'Not urgent'},
+  {v:2, label:'Mild concern'},
+  {v:3, label:'Moderate'},
+  {v:4, label:'Urgent'},
+  {v:5, label:'Very urgent'},
+];
+
+const STEPS = ['Concern','Details','Context','Your Info','Review'];
+
+const AFFIRMATIONS = [
+  { text: 'You have already taken the hardest step — reaching out for clarity takes real courage.' },
+  { text: 'Whatever you are facing, you are not alone. Panditji has guided thousands through moments just like yours.' },
+  { text: 'The stars have a language, and your chart holds answers. You are exactly where you need to be.' },
+  { text: 'This is a safe, confidential space. There is no judgement here — only guidance and understanding.' },
+];
+
+let S = {
+  step:0, categories:[], subIssues:[], urgency:null, openText:'',
+  name:'', dob:'', tob:'', pob:'', gender:'', email:'', consultType:'',
+};
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function render(){
+  renderFlow();
+  const sc = document.getElementById('screen');
+  sc.scrollTo({top:0, behavior:'smooth'});
+
+  const content = document.getElementById('step-content');
+  content.innerHTML = '';
+
+  const builders = [stepConcern, stepDetails, stepContext, stepPersonal, stepReview];
+  if(S.step < builders.length){
+    const {card, cta} = builders[S.step]();
+    content.appendChild(card);
+    document.getElementById('cta-bar').innerHTML = '';
+    document.getElementById('cta-bar').appendChild(cta);
+  } else {
+    const {card, cta} = stepConfirmation();
+    content.appendChild(card);
+    document.getElementById('cta-bar').innerHTML = '';
+    document.getElementById('cta-bar').appendChild(cta);
+  }
+}
+
+function renderFlow(){
+  const el = document.getElementById('flow-strip');
+  el.innerHTML = '';
+  STEPS.forEach((lbl,i)=>{
+    const done=i<S.step, active=i===S.step;
+    const node = document.createElement('div'); node.className='flow-node';
+    node.innerHTML=`
+      <div class="flow-dot ${active?'active':done?'done':''}">${done?'✓':i+1}</div>
+      <div class="flow-lbl ${active?'active':done?'done':''}">${lbl}</div>`;
+    el.appendChild(node);
+    if(i<STEPS.length-1){
+      const line=document.createElement('div');
+      line.className=`flow-line ${i<S.step?'done':''}`;
+      el.appendChild(line);
+    }
+  });
+}
+
+// ── Step builders ──────────────────────────────────────────────────────────────
+function stepConcern(){
+  const card = mk('card');
+  card.innerHTML = `
+    <div class="card-eyebrow">Step 1 of 5</div>
+    <div class="card-title">What brings you here?</div>
+    <div class="card-sub">Select the area you need guidance on. Your selections are private — only Panditji sees them.</div>
+    <div class="cat-grid">
+      ${CATS.map(c=>`
+        <div class="cat-tile ${S.categories.includes(c.id)?'sel':''}" data-id="${c.id}" onclick="toggleCat(this,'${c.id}')">
+          <div class="tile-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${c.svg}</svg></div>
+          <div class="tile-name">${c.name}</div>
+          <div class="tile-hint">${c.hint}</div>
+        </div>`).join('')}
+    </div>
+    <div class="notice green" style="margin-bottom:4px">
+      <div class="notice-mark">▲</div>
+      <div>Completely private. Only Panditji will see what you share here.</div>
+    </div>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-cta" id="cta" onclick="saveConcern()">Continue</button></div>`;
+  return {card, cta};
+}
+
+function stepDetails(){
+  const subs = [...new Set(S.categories.flatMap(id=>SUBS[id]||[]))];
+  const card = mk('card');
+  card.innerHTML = `
+    <div class="card-eyebrow">Step 2 of 5</div>
+    <div class="card-title">What specifically concerns you?</div>
+    <div class="card-sub">Select everything that applies. The more context Panditji has, the more focused your reading will be.</div>
+    <div class="chips" style="margin-bottom:22px">
+      ${subs.map(s=>`<div class="chip ${S.subIssues.includes(s)?'sel':''}" onclick="toggleChip(this,'${s.replace(/'/g,"\\'")}')">${s}</div>`).join('')}
+    </div>
+    <div class="field">
+      <label class="field-label">How pressing is this matter right now?</label>
+      <div class="urg-row">
+        ${URGENCY.map(u=>`
+          <div class="urg-btn ${S.urgency===u.v?'sel':''}" onclick="selectUrg(${u.v},this)">
+            <span class="urg-val">${u.v}</span>${u.label}
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="notice amber">
+      <div class="notice-mark">◆</div>
+      <div>Many people share the same concerns. There is no judgement here.</div>
+    </div>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-back" onclick="back()">Back</button><button class="btn-cta" id="cta" onclick="saveDetails()">Continue</button></div>`;
+  return {card, cta};
+}
+
+function stepContext(){
+  const card = mk('card');
+  card.innerHTML = `
+    <div class="card-eyebrow">Step 3 of 5 — Optional</div>
+    <div class="card-title">Anything else to share?</div>
+    <div class="card-sub">In your own words, describe your situation. Panditji will read this before the call — so you don't have to repeat yourself on the day.</div>
+    <div class="field">
+      <textarea id="f-text" placeholder="Describe what's been weighing on you. Be as specific or as brief as you like.">${S.openText}</textarea>
+    </div>
+    <div class="notice green">
+      <div class="notice-mark">▲</div>
+      <div>This is only for Panditji. It helps create a more meaningful session from the very start.</div>
+    </div>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-back" onclick="back()">Back</button><button class="btn-cta" onclick="saveContext()">Continue</button></div>`;
+  return {card, cta};
+}
+
+function stepPersonal(){
+  const checkSvg = `<svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>`;
+  const card = mk('card');
+  card.innerHTML = `
+    <div class="card-eyebrow">Step 4 of 5</div>
+    <div class="card-title">Your birth details</div>
+    <div class="card-sub">Almost there — just a few more details to complete your reading.</div>
+
+    <div class="affirm-banner">
+      ${AFFIRMATIONS.map(a=>`
+        <div class="affirm-item">
+          <div class="affirm-dot">${checkSvg}</div>
+          <span>${a.text}</span>
+        </div>`).join('')}
+    </div>
+
+    <div class="trust-row">
+      <div class="tpill">Encrypted &amp; private</div>
+      <div class="tpill">Only Panditji sees this</div>
+      <div class="tpill">Never shared</div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Full Name <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="Your name" value="${S.name}" autocomplete="name">
+      </div>
+      <div class="field">
+        <label class="field-label">Gender <span class="req">*</span></label>
+        <select id="f-gender">
+          <option value="">Select</option>
+          ${['Male','Female','Other','Prefer not to say'].map(g=>`<option ${S.gender===g?'selected':''} value="${g}">${g}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Date of Birth <span class="req">*</span></label>
+        <input type="date" id="f-dob" value="${S.dob}">
+      </div>
+      <div class="field">
+        <label class="field-label">Time of Birth</label>
+        <input type="time" id="f-tob" value="${S.tob}">
+        <div class="field-hint">Leave blank if unknown</div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Place of Birth <span class="req">*</span></label>
+      <input type="text" id="f-pob" placeholder="City, State, Country" value="${S.pob}">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input type="email" id="f-email" placeholder="For session notes" value="${S.email}" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label">Consult via</label>
+        <select id="f-ctype">
+          <option value="">Select</option>
+          ${['Voice Call','Chat','Video Call'].map(t=>`<option ${S.consultType===t?'selected':''} value="${t}">${t}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-back" onclick="back()">Back</button><button class="btn-cta" id="cta" onclick="savePersonal()">Review</button></div>`;
+  return {card, cta};
+}
+
+function stepReview(){
+  const catNames = S.categories.map(id=>CATS.find(c=>c.id===id)?.name).filter(Boolean).join(', ');
+  const urgLabel = URGENCY.find(u=>u.v===S.urgency)?.label||'—';
+  const card = mk('card');
+  card.innerHTML = `
+    <div class="card-eyebrow">Step 5 of 5</div>
+    <div class="card-title">Review your submission</div>
+    <div class="card-sub">Panditji will see this right before your session begins.</div>
+    <div>
+      <div class="summ-row"><span class="sk">Areas</span><span class="sv">${catNames}</span></div>
+      ${S.subIssues.length?`<div class="summ-row"><span class="sk">Specifics</span><span class="sv">${S.subIssues.join(', ')}</span></div>`:''}
+      <div class="summ-row"><span class="sk">Urgency</span><span class="sv">${urgLabel}</span></div>
+      ${S.openText?`<div class="summ-row"><span class="sk">Note</span><span class="sv" style="font-style:italic;color:var(--muted)">"${S.openText.slice(0,100)}${S.openText.length>100?'…':''}"</span></div>`:''}
+      <div class="summ-row"><span class="sk">Name</span><span class="sv">${S.name} · ${S.gender}</span></div>
+      <div class="summ-row"><span class="sk">Birth</span><span class="sv">${S.dob}${S.tob?' · '+S.tob:''}<br>${S.pob}</span></div>
+      ${S.consultType?`<div class="summ-row"><span class="sk">Via</span><span class="sv">${S.consultType}</span></div>`:''}
+    </div>
+    <div class="notice green" style="margin-bottom:4px">
+      <div class="notice-mark">▲</div>
+      <div>By submitting you confirm these details are accurate and consent to Panditji reviewing them before your session.</div>
+    </div>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-back" onclick="back()">Edit</button><button class="btn-cta" onclick="doSubmit()">Submit &amp; Connect</button></div>`;
+  return {card, cta};
+}
+
+function stepConfirmation(){
+  const first = S.name.split(' ')[0]||'there';
+  const card = mk('card confirm-center');
+  card.innerHTML = `
+    <div class="confirm-mark">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="confirm-title">You're all set, ${first}</div>
+    <div class="confirm-sub">Panditji will review your intake before the session begins. Connecting you now.</div>
+    <div class="ast-card">
+      <div class="ast-av">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="6.34" y1="6.34" x2="17.66" y2="17.66"/><line x1="17.66" y1="6.34" x2="6.34" y2="17.66"/></svg>
+      </div>
+      <div>
+        <div class="ast-name">Arun Pandit</div>
+        <div class="ast-meta">Vedic Astrology · Jyotish Visharad · 18 years</div>
+      </div>
+      <div class="ast-badge">Notes reviewed</div>
+    </div>
+    <ul class="prep-list">
+      <li>Find a quiet, private space for the call.</li>
+      <li>Keep your birth documents nearby for clarification.</li>
+      <li>Panditji has read your intake — no need to repeat yourself.</li>
+      <li>Prepare your top 2–3 questions beforehand.</li>
+    </ul>`;
+
+  const cta = mk('div');
+  cta.innerHTML = `<div class="btn-row"><button class="btn-cta" style="width:100%;flex:none" onclick="reset()">Start New Consultation</button></div>`;
+  return {card, cta};
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────────
+function toggleCat(el,id){
+  if(S.categories.includes(id)){ S.categories=S.categories.filter(x=>x!==id); el.classList.remove('sel'); }
+  else { S.categories.push(id); el.classList.add('sel'); }
+}
+function toggleChip(el,s){
+  if(S.subIssues.includes(s)){ S.subIssues=S.subIssues.filter(x=>x!==s); el.classList.remove('sel'); }
+  else { S.subIssues.push(s); el.classList.add('sel'); }
+}
+function selectUrg(v,el){
+  S.urgency=v;
+  document.querySelectorAll('.urg-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function saveConcern(){ if(!S.categories.length){ wiggle('cta'); return; } S.step=1; render(); }
+function saveDetails(){ if(!S.urgency){ wiggle('cta'); return; } S.step=2; render(); }
+function saveContext(){ S.openText=(document.getElementById('f-text')||{}).value?.trim()||''; S.step=3; render(); }
+function savePersonal(){
+  S.name=g('f-name'); S.dob=g('f-dob'); S.tob=g('f-tob');
+  S.pob=g('f-pob'); S.email=g('f-email');
+  S.gender=g('f-gender'); S.consultType=g('f-ctype');
+  if(!S.name||!S.dob||!S.pob||!S.gender){ wiggle('cta'); return; }
+  S.step=4; render();
+}
+function doSubmit(){ S.step=5; render(); }
+function back(){ if(S.step>0){ S.step--; render(); } }
+function reset(){
+  S={step:0,categories:[],subIssues:[],urgency:null,openText:'',name:'',dob:'',tob:'',pob:'',gender:'',email:'',consultType:''};
+  render();
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function mk(cls){ const e=document.createElement('div'); e.className=cls; return e; }
+function g(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+function wiggle(id){
+  const b=document.getElementById(id); if(!b) return;
+  b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+  setTimeout(()=>b.classList.remove('shake'),350);
+}
+
+render();
+</script>
+</body>
+</html>
